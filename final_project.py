@@ -8,9 +8,9 @@ class Pizza:
     """
     def __init__(self, name: str, size: str):
         if not (size == 'L' or size == 'XL'):
-            raise ValueError('Выберите размер: L/XL')
+            raise ValueError('Choose the size of pizza: L/XL')
         if not (name == 'Margherita' or name == 'Pepperoni' or name == 'Hawaiian'):
-            raise ValueError('Выберите пиццу: Margherita, Pepperoni или Hawaiian')
+            raise ValueError('Choose pizza from menu: Margherita, Pepperoni или Hawaiian')
 
         self.name = name
         self.ingredients = ['tomato sauce', 'mozzarella']
@@ -69,14 +69,14 @@ def cli():
 
 
 @cli.command()
-@click.option('=delivery', default=False, is_flag=True)
+@click.option('=delivery_', default=False, is_flag=True)
 @click.argument('pizza', nargs=1)
 @click.argument('size', default='L')
-def order(pizza: str, size: str, delivery: bool):
+def order(pizza: str, size: str, delivery_: bool):
     """Готовит и доставляет пиццу"""
     if pizza == 'Margherita' or pizza == 'Pepperoni' or pizza == 'Hawaiian':
         bake(pizza, size)
-        if delivery:
+        if delivery_:
             delivery(pizza, size)
         else:
             pickup(pizza, size)
