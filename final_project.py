@@ -6,55 +6,36 @@ class Pizza:
     """
     базовые параметры пиццы
     """
-    def __init__(self, size):
+    def __init__(self, name: str, size: str):
         if not (size == 'L' or size == 'XL'):
             raise ValueError('Выберите размер: L/XL')
+        if not (name == 'Margherita' or name == 'Pepperoni' or name == 'Hawaiian'):
+            raise ValueError('Выберите пиццу: Margherita, Pepperoni или Hawaiian')
 
+        self.name = name
+        self.ingredients = ['tomato sauce', 'mozzarella']
 
-class Margherita(Pizza):
-    """Рецепт пиццы Маргарита"""
-    recipe = {
-        'Margherita 🧀': ['tomato sauce', 'mozzarella', 'tomatoes']
-    }
+        if name == 'Margherita':
+            self.name = '{0}{1}'.format(self.name, ' 🍕')
+            self.ingredients.append('tomatoes')
 
-    def __init__(self, size):
-        super().__init__(size)
+        if name == 'Pepperoni':
+            self.name = '{0}{1}'.format(self.name, ' 🧀')
+            self.ingredients.append('pepperoni')
 
-    @staticmethod
-    def __dict__():
-        return Margherita.recipe
+        if name == 'Hawaiian':
+            self.name = '{0}{1}'.format(self.name, ' 🍍')
+            self.ingredients.append('chicken')
+            self.ingredients.append('pineapples')
 
-
-class Pepperoni(Pizza):
-    """Рецепт пиццы Пипперони"""
-    recipe = {
-        'Pepperoni 🍕': ['tomato sauce', 'mozzarella', 'pepperoni']
-    }
-
-    def __init__(self, size):
-        super().__init__(size)
-
-    @staticmethod
-    def __dict__():
-        return Pepperoni.recipe
-
-
-class Hawaiian(Pizza):
-    """Рецепт пиццы Гавайская"""
-    recipe = {
-        'Hawaiian 🍍': ['tomato sauce', 'mozzarella', 'chicken', 'pineapples']
-    }
-
-    def __init__(self, size):
-        super().__init__(size)
-
-    @staticmethod
-    def __dict__():
-        return Hawaiian.recipe
+        def dict(self):
+            """Выводит рецепт"""
+            recipe = {self.name: ', '.join(x for x in self.ingredients)}
+            return recipe
 
 
 def log(text):
-    """Выводит рандомное время выполнения"""
+    """Выводит время выполнения"""
     def decorator(function):
         def wrapper(*args, **kwargs):
             function(*args, **kwargs)
@@ -65,19 +46,19 @@ def log(text):
 
 
 @log('🍳 Готовили {}с!')
-def bake(pizza_: str) -> int:
+def bake(pizza: str, size: str) -> int:
     """Готовит пиццу, возвращает время приготовления"""
     return randint(1, 60)
 
 
 @log('🛵 Доставили за {}с!')
-def delivery(pizza_: str) -> int:
+def delivery(pizza: str, size: str) -> int:
     """Доставляет пиццу, возвращает время доставки"""
     return randint(1, 60)
 
 
 @log('🏠 Забрали за {}с!')
-def pickup(pizza_: str) -> int:
+def pickup(pizza: str, size: str) -> int:
     """Самовывоз"""
     return randint(1, 60)
 
@@ -88,16 +69,17 @@ def cli():
 
 
 @cli.command()
-@click.option('--delivery_', default=False, is_flag=True)
+@click.option('=delivery', default=False, is_flag=True)
 @click.argument('pizza', nargs=1)
-def order(pizza: str, delivery_):
+@click.argument('size', default='L')
+def order(pizza: str, size: str, delivery: bool):
     """Готовит и доставляет пиццу"""
     if pizza == 'Margherita' or pizza == 'Pepperoni' or pizza == 'Hawaiian':
-        bake(pizza)
-        if delivery_:
-            delivery(pizza)
+        bake(pizza, size)
+        if delivery:
+            delivery(pizza, size)
         else:
-            pickup(pizza)
+            pickup(pizza, size)
     else:
         click.echo('Margherita, Pepperoni, Hawaiian only!')
 
@@ -106,12 +88,10 @@ def order(pizza: str, delivery_):
 @cli.command()
 def menu():
     """Выводит меню"""
-    pizzaM = Margherita("L")
-    pizzaP = Pepperoni("L")
-    pizzaH = Hawaiian("L")
-    click.echo(pizzaM.__dict__())
-    click.echo(pizzaH.__dict__())
-    click.echo(pizzaP.__dict__())
+    pizzas = [Pizza('Margherita', 'L'), Pizza('Pepperoni', 'L'), Pizza('Hawaiian', 'L')]
+    for pizza in pizzas:
+       print(f'{pizza.name}: ' + ', '.join(x for x in pizza.ingredients))
+    print('All kinds of pizza have L or XL size')
 
 
 if __name__ == '__main__':
